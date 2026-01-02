@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Account</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <script>
+      /* ===== LOGIN GUARD ===== */
+      let user = JSON.parse(localStorage.getItem("currentUser"));
+      if (!user) {
+        localStorage.setItem("redirectAfterLogin", "my-account.html");
+        location.href = "login.html";
+      }
+    </script>
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <h1>My Account</h1>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="cart.html">Cart</a>
+      </nav>
+    </div>
+
+    <section class="products">
+      <div class="product-box">
+        <h3>👋 Hello, ${user ? user.name : ""}</h3>
+        <p>Manage your orders & account settings</p>
+      </div>
+
+      <div
+        class="product-box"
+        onclick="go('my-orders.html')"
+        style="cursor: pointer"
+      >
+        <h3>📦 My Orders</h3>
+        <p>View your order history & tracking</p>
+      </div>
+
+      <div
+        class="product-box"
+        onclick="go('wishlist.html')"
+        style="cursor: pointer"
+      >
+        <h3>❤️ Wishlist</h3>
+        <p>Your saved products</p>
+      </div>
+
+      <div
+        class="product-box"
+        onclick="go('coupons.html')"
+        style="cursor: pointer"
+      >
+        <h3>🏷️ Coupons</h3>
+        <p>Available discount coupons</p>
+      </div>
+
+      <div
+        class="product-box"
+        onclick="go('help.html')"
+        style="cursor: pointer"
+      >
+        <h3>❓ Help & Support</h3>
+        <p>Need help? Contact support</p>
+      </div>
+
+      <div class="product-box" onclick="logout()" style="cursor: pointer">
+        <h3>🚪 Logout</h3>
+        <p>Sign out from your account</p>
+      </div>
+    </section>
+
+    <script>
+      function go(page) {
+        location.href = page;
+      }
+
+      function logout() {
+        localStorage.removeItem("currentUser");
+        localStorage.removeItem("adminLogin");
+        alert("Logged out successfully");
+        location.href = "index.html";
+      }
+    </script>
+  </body>
+</html>

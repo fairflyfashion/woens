@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Edit Product</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <script>
+      if (localStorage.getItem("adminLogin") !== "yes") {
+        location.href = "admin-login.html";
+      }
+    </script>
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <h1>Edit Product</h1>
+    </div>
+
+    <!-- NAV -->
+    <div class="admin-nav">
+      <button onclick="go('manage-products.html')">⬅ Back</button>
+      <button class="danger" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- FORM -->
+    <div class="products">
+      <div class="product-box">
+        <h3>Edit Product Details</h3>
+
+        <label>Product Name</label>
+        <input id="name" placeholder="Product name" />
+
+        <label>Selling Price</label>
+        <input id="price" type="number" placeholder="Selling price" />
+
+        <label>Purchase Price</label>
+        <input id="purchase" type="number" placeholder="Purchase cost" />
+
+        <label>Stock Quantity</label>
+        <input id="stock" type="number" placeholder="Stock" />
+
+        <label>Category</label>
+        <select id="category">
+          <option value="men">Men</option>
+          <option value="women">Women</option>
+          <option value="kids">Kids</option>
+        </select>
+
+        <label>Image URL</label>
+        <input id="img" placeholder="Image URL" />
+
+        <button onclick="updateProduct()">Update Product</button>
+      </div>
+    </div>
+
+    <script>
+      let products = JSON.parse(localStorage.getItem("products")) || [];
+      let index = Number(localStorage.getItem("editIndex"));
+
+      /* ===== GUARD ===== */
+      if (isNaN(index) || !products[index]) {
+        alert("Invalid product");
+        location.href = "manage-products.html";
+      }
+
+      /* ===== LOAD DATA ===== */
+      let p = products[index];
+
+      name.value = p.name;
+      price.value = p.price;
+      purchase.value = p.purchase ?? 0;
+      stock.value = p.stock;
+      category.value = p.category;
+      img.value = p.img;
+
+      /* ===== UPDATE ===== */
+      function updateProduct() {
+        let nameVal = name.value.trim();
+        let priceVal = Number(price.value);
+        let purchaseVal = Number(purchase.value);
+        let stockVal = Number(stock.value);
+        let categoryVal = category.value;
+        let imgVal = img.value.trim();
+
+        /* VALIDATION */
+        if (!nameVal || !categoryVal) {
+          alert("Name and category required");
+          return;
+        }
+        if (priceVal <= 0 || purchaseVal < 0) {
+          alert("Invalid price");
+          return;
+        }
+        if (stockVal < 0) {
+          alert("Invalid stock");
+          return;
+        }
+
+        /* DUPLICATE CHECK (EXCEPT SELF) */
+        let duplicate = products.find(
+          (x, i) =>
+            i !== index &&
+            x.name.toLowerCase() === nameVal.toLowerCase() &&
+            x.category === categoryVal
+        );
+        if (duplicate) {
+          alert("Product with same name already exists in this category");
+          return;
+        }
+
+        /* SAVE */
+        products[index] = {
+          ...p,
+          name: nameVal,
+          price: priceVal,
+          purchase: purchaseVal,
+          stock: stockVal,
+          category: categoryVal,
+          img: imgVal || p.img,
+        };
+
+        localStorage.setItem("products", JSON.stringify(products));
+
+        alert("Product updated successfully ✅");
+        location.href = "manage-products.html";
+      }
+
+      function go(p) {
+        location.href = p;
+      }
+      function logout() {
+        localStorage.removeItem("adminLogin");
+        location.href = "admin-login.html";
+      }
+    </script>
+  </body>
+</html>

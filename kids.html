@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Kids Collection</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <h1>Kids Collection</h1>
+      <nav id="navAuth">
+        <a href="index.html">Home</a>
+        <a href="men.html">Men</a>
+        <a href="women.html">Women</a>
+        <a href="kids.html">Kids</a>
+        <a href="cart.html">Cart</a>
+      </nav>
+    </div>
+
+    <section class="products">
+      <div id="product-list"></div>
+    </section>
+
+    <script>
+      /* ===== PRODUCTS ===== */
+      let products = JSON.parse(localStorage.getItem("products")) || [];
+      let list = document.getElementById("product-list");
+
+      function renderProducts() {
+        list.innerHTML = "";
+
+        let kidsProducts = products.filter((p) => p.category === "kids");
+
+        if (kidsProducts.length === 0) {
+          list.innerHTML = `
+      <div class="product-box">
+        <p>No kids products available right now.</p>
+      </div>`;
+          return;
+        }
+
+        kidsProducts.forEach((p) => {
+          list.innerHTML += `
+      <div class="product-box">
+        <img src="${p.img}" onclick="openDetails('${
+            p.id
+          }')" style="cursor:pointer;">
+        <h3>${p.name}</h3>
+        <p>₹${p.price}</p>
+        <p>Stock: ${p.stock}</p>
+
+        ${
+          p.stock > 0
+            ? `<button onclick="addToCart(${p.id})">Add to Cart</button>`
+            : `<p style="color:red;">Out of Stock</p>`
+        }
+
+        <button onclick="addToWishlist(${p.id})">❤️ Wishlist</button>
+      </div>
+    `;
+        });
+      }
+
+      function addToCart(id) {
+        let products = JSON.parse(localStorage.getItem("products")) || [];
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+        let product = products.find((p) => p.id === id);
+        if (!product || product.stock <= 0) {
+          alert("Out of Stock");
+          return;
+        }
+
+        product.stock--;
+
+        let item = cart.find((i) => i.id === id);
+        if (item) item.qty++;
+        else
+          cart.push({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            img: product.img,
+            category: product.category,
+            qty: 1,
+          });
+
+        localStorage.setItem("products", JSON.stringify(products));
+        localStorage.setItem("cart", JSON.stringify(cart));
+        renderProducts();
+      }
+
+      renderProducts();
+    </script>
+
+    <script>
+      /* ===== NAV AUTH ===== */
+      let nav = document.getElementById("navAuth");
+      let user = JSON.parse(localStorage.getItem("currentUser"));
+
+      if (user) {
+        nav.innerHTML += `
+    <a href="my-account.html">My Account</a>
+    <span style="margin-left:8px;font-size:12px;">Hi, ${user.name}</span>
+    <a href="#" onclick="logout()">Logout</a>
+  `;
+      } else {
+        nav.innerHTML += `
+    <a href="login.html">Login</a>
+    <a href="signup.html">Sign Up</a>
+  `;
+      }
+
+      function logout() {
+        localStorage.removeItem("currentUser");
+        localStorage.removeItem("adminLogin");
+        location.reload();
+      }
+    </script>
+
+    <script>
+      /* ===== WISHLIST ===== */
+      function addToWishlist(id) {
+        let user = JSON.parse(localStorage.getItem("currentUser"));
+        if (!user) {
+          localStorage.setItem("redirectAfterLogin", "kids.html");
+          location.href = "login.html";
+          return;
+        }
+
+        let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+        let product = products.find((p) => p.id === id);
+
+        if (wishlist.find((w) => w.userId === user.id && w.id === id)) {
+          alert("Already in wishlist");
+          return;
+        }
+
+        wishlist.push({
+          userId: user.id,
+          id: product.id,
+          name: product.name,
+          price: product.price,
+        });
+
+        localStorage.setItem("wishlist", JSON.stringify(wishlist));
+        alert("Added to wishlist ❤️");
+      }
+    </script>
+
+    <script>
+      function openDetails(id) {
+        location.href = "product-details.html?id=" + id;
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Orders</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <script>
+      if (localStorage.getItem("adminLogin") !== "yes") {
+        location.href = "admin-login.html";
+      }
+    </script>
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <h1>Orders</h1>
+    </div>
+
+    <!-- FILTER NAV -->
+    <div class="admin-nav">
+      <button onclick="setFilter('All')">All</button>
+      <button onclick="setFilter('Pending')">Pending</button>
+      <button onclick="setFilter('Packing')">Packing</button>
+      <button onclick="setFilter('Dispatched')">Dispatched</button>
+      <button onclick="setFilter('Delivered')">Delivered</button>
+    </div>
+
+    <!-- ORDER LIST -->
+    <div class="products" id="orderList"></div>
+
+    <script>
+      let orders = JSON.parse(localStorage.getItem("orders")) || [];
+      let box = document.getElementById("orderList");
+      let currentFilter = "All";
+
+      function setFilter(status) {
+        currentFilter = status;
+        renderOrders();
+      }
+
+      function renderOrders() {
+        box.innerHTML = "";
+
+        if (!orders.length) {
+          box.innerHTML = "<p>No orders found</p>";
+          return;
+        }
+
+        orders.forEach((o) => {
+          if (currentFilter !== "All" && o.status !== currentFilter) return;
+
+          let expense = o.expense || { delivery: 0, packing: 0, other: 0 };
+          let totalExpense = expense.delivery + expense.packing + expense.other;
+
+          box.innerHTML += `
+    <div class="product-box">
+
+      <!-- HEADER -->
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3>Order #${o.id}</h3>
+        <span class="status ${o.status.toLowerCase()}">${o.status}</span>
+      </div>
+
+      <!-- CUSTOMER -->
+      <p><b>Name:</b> ${o.user?.name || "-"}</p>
+      <p><b>Phone:</b> ${o.user?.phone || "-"}</p>
+      <p><b>Address:</b> ${o.address || "-"}</p>
+
+      <hr style="border:0;border-top:1px solid #2b3168;margin:10px 0">
+
+      <!-- STATUS -->
+      <label>Status</label>
+      <select class="status-select" onchange="updateStatus(${o.id},this.value)">
+        <option ${o.status == "Pending" ? "selected" : ""}>Pending</option>
+        <option ${o.status == "Packing" ? "selected" : ""}>Packing</option>
+        <option ${
+          o.status == "Dispatched" ? "selected" : ""
+        }>Dispatched</option>
+        <option ${o.status == "Delivered" ? "selected" : ""}>Delivered</option>
+      </select>
+
+      <!-- SHIPPING -->
+      <label>Courier</label>
+      <select onchange="updateCourier(${o.id},this.value)">
+        <option value="">Select Courier</option>
+        <option ${o.courier == "Delhivery" ? "selected" : ""}>Delhivery</option>
+        <option ${o.courier == "DTDC" ? "selected" : ""}>DTDC</option>
+        <option ${o.courier == "Blue Dart" ? "selected" : ""}>Blue Dart</option>
+        <option ${
+          o.courier == "India Post" ? "selected" : ""
+        }>India Post</option>
+      </select>
+
+      <input placeholder="Tracking ID"
+        value="${o.trackingId || ""}"
+        onblur="updateTracking(${o.id},this.value)">
+
+      <hr style="border:0;border-top:1px solid #2b3168;margin:10px 0">
+
+      <!-- EXPENSE -->
+      <h4 style="font-size:13px">Expenses</h4>
+
+      <input type="number" placeholder="Delivery Cost"
+        value="${expense.delivery}"
+        onblur="updateExpense(${o.id},'delivery',this.value)">
+
+      <input type="number" placeholder="Packing Cost"
+        value="${expense.packing}"
+        onblur="updateExpense(${o.id},'packing',this.value)">
+
+      <input type="number" placeholder="Other Cost"
+        value="${expense.other}"
+        onblur="updateExpense(${o.id},'other',this.value)">
+
+      <p style="margin-top:6px">
+        <b>Total Expense:</b> ₹${totalExpense}
+      </p>
+
+      <!-- ACTION -->
+      <button class="small" onclick="openInvoice(${o.id})">🧾 Invoice</button>
+
+    </div>
+    `;
+        });
+      }
+
+      /* ===== UPDATE FUNCTIONS ===== */
+      function updateStatus(id, val) {
+        orders = orders.map((o) => {
+          if (o.id === id) o.status = val;
+          return o;
+        });
+        save();
+      }
+
+      function updateCourier(id, val) {
+        orders = orders.map((o) => {
+          if (o.id === id) o.courier = val;
+          return o;
+        });
+        save();
+      }
+
+      function updateTracking(id, val) {
+        orders = orders.map((o) => {
+          if (o.id === id) o.trackingId = val;
+          return o;
+        });
+        save();
+      }
+
+      function updateExpense(id, type, val) {
+        orders = orders.map((o) => {
+          if (o.id === id) {
+            if (!o.expense) o.expense = { delivery: 0, packing: 0, other: 0 };
+            o.expense[type] = Number(val) || 0;
+          }
+          return o;
+        });
+        save();
+      }
+
+      function openInvoice(id) {
+        localStorage.setItem("printOrderId", id);
+        location.href = "invoice.html";
+      }
+
+      function save() {
+        localStorage.setItem("orders", JSON.stringify(orders));
+        renderOrders();
+      }
+
+      renderOrders();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Manage Products</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <script>
+      if (localStorage.getItem("adminLogin") !== "yes") {
+        location.href = "admin-login.html";
+      }
+    </script>
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <h1>Manage Products</h1>
+    </div>
+
+    <!-- NAV -->
+    <div class="admin-nav">
+      <button onclick="go('admin.html')">Home</button>
+      <button onclick="go('dashboard.html')">Dashboard</button>
+      <button onclick="go('orders.html')">Orders</button>
+      <button onclick="go('add-product.html')">Add Product</button>
+      <button class="danger" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- PRODUCT LIST -->
+    <div class="products" id="productList"></div>
+
+    <script>
+      let products = JSON.parse(localStorage.getItem("products")) || [];
+      let orders = JSON.parse(localStorage.getItem("orders")) || [];
+      let box = document.getElementById("productList");
+
+      function isProductOrdered(product) {
+        return orders.some(
+          (o) =>
+            Array.isArray(o.items) &&
+            o.items.some(
+              (i) => i.name === product.name && i.category === product.category
+            )
+        );
+      }
+
+      function render() {
+        box.innerHTML = "";
+
+        if (products.length === 0) {
+          box.innerHTML = `
+      <div class="product-box">
+        <p>No products available.</p>
+        <button class="small" onclick="go('add-product.html')">
+          ➕ Add Product
+        </button>
+      </div>
+    `;
+          return;
+        }
+
+        products.forEach((p, i) => {
+          box.innerHTML += `
+    <div class="product-box">
+
+      <img src="${p.img}" alt="${p.name}">
+
+      <h3>${p.name}</h3>
+
+      <p><b>Category:</b> ${p.category}</p>
+      <p><b>Selling Price:</b> ₹${p.price}</p>
+      <p><b>Purchase Price:</b> ₹${p.purchase ?? 0}</p>
+      <p><b>Stock:</b> ${p.stock}</p>
+
+      <p style="font-size:11px;color:#9aa0b4">
+        Added: ${p.createdAt ? p.createdAt.split("T")[0] : "-"}
+      </p>
+
+      <button class="small" onclick="editProduct(${i})">✏️ Edit</button>
+
+      ${
+        isProductOrdered(p)
+          ? `<p style="color:#f59e0b;font-size:12px">
+             Cannot delete (used in orders)
+           </p>`
+          : `<button class="danger small" onclick="deleteProduct(${i})">
+             🗑 Delete
+           </button>`
+      }
+
+    </div>
+    `;
+        });
+      }
+
+      function deleteProduct(i) {
+        if (!confirm("Delete this product permanently?")) return;
+        products.splice(i, 1);
+        localStorage.setItem("products", JSON.stringify(products));
+        render();
+      }
+
+      function editProduct(i) {
+        if (!products[i]) {
+          alert("Invalid product");
+          return;
+        }
+        localStorage.setItem("editIndex", i);
+        location.href = "edit-product.html";
+      }
+
+      function go(p) {
+        location.href = p;
+      }
+      function logout() {
+        localStorage.removeItem("adminLogin");
+        location.href = "admin-login.html";
+      }
+
+      render();
+    </script>
+  </body>
+</html>

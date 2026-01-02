@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Invoice</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body style="background: #f5f5f5">
+    <!-- TOP BAR (NO PRINT) -->
+    <div class="topbar no-print">
+      <h1>Invoice</h1>
+      <button class="small" onclick="window.print()">🖨 Print</button>
+    </div>
+
+    <!-- INVOICE -->
+    <div class="invoice-box" id="box"></div>
+
+    <script>
+      let orderId = localStorage.getItem("printOrderId");
+      let orders = JSON.parse(localStorage.getItem("orders")) || [];
+      let box = document.getElementById("box");
+
+      if (!orderId) {
+        box.innerHTML = "<p>No order selected</p>";
+      } else {
+        let o = orders.find((x) => String(x.id) === String(orderId));
+
+        if (!o) {
+          box.innerHTML = "<p>Order not found</p>";
+        } else {
+          let rows = "";
+          let items = o.items || [];
+
+          items.forEach((i) => {
+            rows += `
+      <tr>
+        <td>${i.name}</td>
+        <td>${i.qty}</td>
+        <td class="right">₹${i.price}</td>
+        <td class="right">₹${i.price * i.qty}</td>
+      </tr>`;
+          });
+
+          box.innerHTML = `
+    <h2 style="margin-bottom:6px">My Shop</h2>
+    <p><b>Invoice #:</b> ${o.id}</p>
+    <p><b>Date:</b> ${o.date || "-"}</p>
+
+    <hr>
+
+    <p><b>Name:</b> ${o.user?.name || "-"}</p>
+    <p><b>Phone:</b> ${o.user?.phone || "-"}</p>
+    <p><b>Address:</b> ${o.address || "-"}</p>
+
+    <hr>
+
+    <p><b>Status:</b> ${o.status}</p>
+    <p><b>Courier:</b> ${o.courier || "-"}</p>
+    <p><b>Tracking ID:</b> ${o.trackingId || "-"}</p>
+
+    <table>
+      <tr>
+        <th>Item</th>
+        <th>Qty</th>
+        <th>Price</th>
+        <th>Total</th>
+      </tr>
+      ${rows}
+      <tr>
+        <th colspan="3" class="right">Grand Total</th>
+        <th class="right">₹${o.total || 0}</th>
+      </tr>
+    </table>
+    `;
+        }
+      }
+    </script>
+
+    <style>
+      /* PRINT SAFE */
+      @media print {
+        body {
+          background: #fff;
+        }
+        .no-print {
+          display: none;
+        }
+      }
+    </style>
+  </body>
+</html>

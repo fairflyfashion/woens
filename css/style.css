@@ -1,0 +1,376 @@
+/* =================================================
+   RESET + GLOBAL
+================================================= */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+:root{
+  --bg:#0b1020;
+  --panel:#121735;
+  --card:#1b2150;
+  --card2:#101638;
+  --primary:#6d7cff;
+  --accent:#22d3ee;
+  --success:#22c55e;
+  --danger:#ef4444;
+  --warning:#f59e0b;
+  --text:#f8fafc;
+  --muted:#9aa0b4;
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.5;
+  padding-bottom:64px;
+}
+
+/* =================================================
+   TOPBAR / DESKTOP NAV
+================================================= */
+.topbar{
+  background:linear-gradient(90deg,#141a3a,#0e1330);
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  position:sticky;
+  top:0;
+  z-index:999;
+  box-shadow:0 6px 16px rgba(0,0,0,.7);
+}
+
+.topbar h1{
+  font-size:16px;
+  font-weight:600;
+  white-space:nowrap;
+}
+
+.topbar nav{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+
+.topbar nav a{
+  color:var(--text);
+  font-size:13px;
+  text-decoration:none;
+}
+
+.topbar nav a:hover{
+  color:var(--accent);
+}
+
+/* =================================================
+   MOBILE NAV
+================================================= */
+.m-nav{
+  display:none;
+  background:#0e1330;
+  padding:10px;
+}
+
+.m-nav-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:18px;
+}
+
+.m-nav .logo{
+  font-weight:600;
+}
+
+.m-search{
+  display:flex;
+  gap:6px;
+  margin-top:8px;
+}
+
+.m-search input{
+  flex:1;
+}
+
+.m-search button{
+  width:44px;
+  padding:0;
+}
+
+/* =================================================
+   CATEGORY DRAWER
+================================================= */
+.cat-menu{
+  position:fixed;
+  top:0;
+  left:0;
+  width:220px;
+  height:100%;
+  background:var(--panel);
+  padding:16px;
+  display:none;
+  z-index:1000;
+}
+
+.cat-item{
+  padding:12px;
+  border-radius:12px;
+  background:var(--card);
+  margin-bottom:8px;
+  cursor:pointer;
+}
+
+.cat-item:hover{
+  background:linear-gradient(90deg,var(--primary),var(--accent));
+  color:#000;
+}
+
+/* =================================================
+   SEARCH / FILTER / SORT
+================================================= */
+.nav-search,
+.nav-select{
+  padding:7px 10px;
+  border-radius:14px;
+  border:1px solid #2b3168;
+  background:var(--card2);
+  color:var(--text);
+  font-size:12px;
+}
+
+.nav-search::placeholder{color:var(--muted);}
+
+.nav-search:focus,
+.nav-select:focus{
+  outline:none;
+  border-color:var(--accent);
+  box-shadow:0 0 0 2px rgba(34,211,238,.15);
+}
+
+/* =================================================
+   SECTIONS
+================================================= */
+.products{
+  padding:12px;
+}
+
+/* =================================================
+   GRID
+================================================= */
+#product-list{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:14px;
+}
+
+/* =================================================
+   CARD SYSTEM
+================================================= */
+.product-box,
+.dash-card,
+.order-card{
+  background:var(--card);
+  border-radius:16px;
+  padding:14px;
+  box-shadow:0 8px 20px rgba(0,0,0,.7);
+  transition:transform .25s ease, box-shadow .25s ease;
+}
+
+.product-box:hover,
+.dash-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 16px 34px rgba(0,0,0,.9);
+}
+
+.product-box img{
+  width:100%;
+  height:180px;
+  object-fit:cover;
+  border-radius:14px;
+}
+
+.product-box h3{
+  font-size:14px;
+  margin:8px 0 4px;
+}
+
+.product-box p{
+  font-size:12px;
+  color:var(--muted);
+  margin:4px 0;
+}
+
+/* =================================================
+   INPUTS
+================================================= */
+input, select, textarea{
+  width:100%;
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid #2b3168;
+  background:var(--card2);
+  color:var(--text);
+  font-size:13px;
+  margin-top:6px;
+}
+
+input::placeholder,
+textarea::placeholder{color:var(--muted);}
+
+input:focus,
+select:focus,
+textarea:focus{
+  outline:none;
+  border-color:var(--accent);
+}
+
+/* =================================================
+   BUTTON SYSTEM
+================================================= */
+button{
+  margin-top:8px;
+  padding:12px;
+  border:none;
+  border-radius:18px;
+  background:linear-gradient(90deg,var(--primary),var(--accent));
+  color:#000;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+
+button:hover{
+  box-shadow:0 6px 16px rgba(0,0,0,.6);
+}
+
+button:active{transform:scale(.98);}
+
+button.secondary{
+  background:var(--warning);
+}
+
+button.danger{
+  background:var(--danger);
+  color:#fff;
+}
+
+button.outline{
+  background:transparent;
+  border:1px solid var(--accent);
+  color:var(--accent);
+}
+
+button.small{
+  padding:6px 12px;
+  font-size:12px;
+  border-radius:12px;
+}
+
+/* =================================================
+   ADMIN NAV
+================================================= */
+.admin-nav{
+  display:flex;
+  gap:8px;
+  padding:12px;
+  overflow-x:auto;
+}
+
+.admin-nav button{
+  flex:0 0 auto;
+  font-size:12px;
+}
+
+/* =================================================
+   DASHBOARD
+================================================= */
+.dash-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  padding:12px;
+}
+
+.dash-card h2{
+  font-size:20px;
+}
+
+.dash-card p{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.dash-card.highlight{
+  background:linear-gradient(135deg,var(--primary),var(--accent));
+  color:#000;
+}
+
+/* =================================================
+   STATUS
+================================================= */
+.status{
+  font-size:11px;
+  padding:4px 8px;
+  border-radius:10px;
+  display:inline-block;
+}
+
+.status.pending{background:#3b2f00;color:#facc15}
+.status.packing{background:#083344;color:#22d3ee}
+.status.dispatched{background:#0c1e3d;color:#38bdf8}
+.status.delivered{background:#052e16;color:#22c55e}
+.status.cancelled{background:#3f0d0d;color:#ef4444}
+
+/* =================================================
+   BOTTOM NAV
+================================================= */
+.bottom-nav{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:#0e1330;
+  display:flex;
+  justify-content:space-around;
+  padding:8px 0;
+  box-shadow:0 -4px 12px rgba(0,0,0,.7);
+}
+
+.bottom-nav a{
+  color:var(--muted);
+  font-size:11px;
+  text-decoration:none;
+}
+
+.bottom-nav a:hover{color:var(--accent);}
+
+/* =================================================
+   RESPONSIVE
+================================================= */
+@media(max-width:768px){
+  .topbar{display:none;}
+  .m-nav{display:block;}
+}
+
+@media(min-width:600px){
+  #product-list{grid-template-columns:repeat(2,1fr);}
+}
+
+@media(min-width:900px){
+  #product-list{grid-template-columns:repeat(4,1fr);}
+  .dash-grid{grid-template-columns:repeat(6,1fr);}
+}
+
+/* =================================================
+   PRINT
+================================================= */
+@media print{
+  body{background:#fff}
+  .topbar,.admin-nav,.bottom-nav,button{display:none}
+}

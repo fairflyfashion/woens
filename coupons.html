@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Coupons</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <script>
+      /* ===== LOGIN GUARD ===== */
+      let user = JSON.parse(localStorage.getItem("currentUser"));
+      if (!user) {
+        localStorage.setItem("redirectAfterLogin", "coupons.html");
+        location.href = "login.html";
+      }
+    </script>
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <h1>My Coupons</h1>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="my-account.html">My Account</a>
+      </nav>
+    </div>
+
+    <!-- COUPON LIST -->
+    <section class="products" id="couponList"></section>
+
+    <script>
+      /* ===== DEFAULT COUPONS (ONCE) ===== */
+      let coupons = JSON.parse(localStorage.getItem("coupons"));
+      if (!coupons) {
+        coupons = [
+          {
+            code: "WELCOME10",
+            type: "percent",
+            value: 10,
+            description: "10% off on your first order",
+            active: true,
+          },
+          {
+            code: "FREESHIP",
+            type: "freeship",
+            value: 0,
+            description: "Free delivery on any order",
+            active: true,
+          },
+        ];
+        localStorage.setItem("coupons", JSON.stringify(coupons));
+      }
+
+      let box = document.getElementById("couponList");
+
+      function renderCoupons() {
+        box.innerHTML = "";
+
+        let activeCoupons = coupons.filter((c) => c.active);
+
+        if (activeCoupons.length === 0) {
+          box.innerHTML = `
+      <div class="product-box">
+        <p>No coupons available right now.</p>
+      </div>
+    `;
+          return;
+        }
+
+        activeCoupons.forEach((c) => {
+          box.innerHTML += `
+    <div class="product-box">
+      <h3>${c.code}</h3>
+      <p>${c.description}</p>
+      <p style="font-size:12px;color:#9aa0b4">
+        Type: ${c.type === "percent" ? c.value + "% OFF" : "Free Shipping"}
+      </p>
+    </div>
+    `;
+        });
+      }
+
+      renderCoupons();
+    </script>
+  </body>
+</html>

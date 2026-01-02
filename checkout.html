@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Checkout</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <script>
+      let user = JSON.parse(localStorage.getItem("currentUser"));
+      if (!user) {
+        alert("Please login first");
+        localStorage.setItem("redirectAfterLogin", "checkout.html");
+        location.href = "login.html";
+      }
+    </script>
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <h1>Step 2: Checkout</h1>
+      <nav>
+        <a href="cart.html">Cart</a>
+        <a href="index.html">Home</a>
+      </nav>
+    </div>
+
+    <section class="products" style="max-width: 520px; margin: auto">
+      <!-- CUSTOMER DETAILS -->
+      <div class="product-box">
+        <h3>Delivery Details</h3>
+
+        <input id="name" placeholder="Full Name" />
+        <input id="phone" placeholder="Phone Number" />
+        <textarea id="address" placeholder="Full Address"></textarea>
+
+        <button onclick="continuePayment()">Continue to Payment →</button>
+      </div>
+
+      <!-- ORDER SUMMARY -->
+      <div class="product-box">
+        <h3>Order Summary</h3>
+        <div id="summary"></div>
+        <hr />
+        <p><b>Total:</b> ₹<span id="total"></span></p>
+      </div>
+    </section>
+
+    <script>
+      /* ===== LOAD CART ===== */
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+      let summary = document.getElementById("summary");
+      let totalBox = document.getElementById("total");
+
+      if (cart.length === 0) {
+        alert("Cart is empty");
+        location.href = "cart.html";
+      }
+
+      let total = 0;
+      summary.innerHTML = "";
+      cart.forEach((i) => {
+        total += i.price * i.qty;
+        summary.innerHTML += `
+    <p>${i.name} × ${i.qty} — ₹${i.price * i.qty}</p>
+  `;
+      });
+      totalBox.innerText = total;
+
+      /* ===== CONTINUE ===== */
+      function continuePayment() {
+        let name = document.getElementById("name").value.trim();
+        let phone = document.getElementById("phone").value.trim();
+        let address = document.getElementById("address").value.trim();
+
+        if (!name || !phone || !address) {
+          alert("Please fill all details");
+          return;
+        }
+
+        // 🔐 SAVE ONLY ADDRESS DATA
+        localStorage.setItem(
+          "checkoutCustomer",
+          JSON.stringify({
+            name,
+            phone,
+            address,
+          })
+        );
+
+        // 🔐 LOCK CHECKOUT FLOW
+        localStorage.setItem("checkoutStep", "address_done");
+
+        location.href = "payment.html";
+      }
+    </script>
+  </body>
+</html>

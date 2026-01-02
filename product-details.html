@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Product Details</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <h1>Product Details</h1>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="cart.html">Cart</a>
+      </nav>
+    </div>
+
+    <div class="products" id="detailsBox"></div>
+
+    <script>
+      /* ===== GET PRODUCT ID FROM URL ===== */
+      let params = new URLSearchParams(window.location.search);
+      let id = Number(params.get("id"));
+
+      let products = JSON.parse(localStorage.getItem("products")) || [];
+      let p = products.find((x) => x.id === id);
+      let box = document.getElementById("detailsBox");
+
+      if (!p) {
+        box.innerHTML = `
+    <div class="product-box">
+      <p>Product not found.</p>
+    </div>`;
+      } else {
+        box.innerHTML = `
+    <div class="product-box">
+      <img src="${p.img}" style="height:280px;object-fit:cover">
+      <h3>${p.name}</h3>
+      <p><b>Price:</b> ₹${p.price}</p>
+      <p><b>Stock:</b> ${p.stock}</p>
+      <p><b>Category:</b> ${p.category}</p>
+      <p><b>Description:</b> Premium quality product.</p>
+
+      ${
+        p.stock > 0
+          ? `<button onclick="addToCart()">Add to Cart</button>
+           <button class="secondary" onclick="buyNow()">Buy Now</button>`
+          : `<p style="color:red;">Out of Stock</p>`
+      }
+
+      <button class="success" onclick="addToWishlist()">❤️ Wishlist</button>
+    </div>
+  `;
+      }
+
+      /* ===== ADD TO CART ===== */
+      function addToCart() {
+        let products = JSON.parse(localStorage.getItem("products")) || [];
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+        let product = products.find((x) => x.id === id);
+        if (!product || product.stock <= 0) {
+          alert("Out of Stock");
+          return;
+        }
+
+        product.stock--;
+
+        let item = cart.find((i) => i.id === id);
+        if (item) item.qty++;
+        else
+          cart.push({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            img: product.img,
+            category: product.category,
+            qty: 1,
+          });
+
+        localStorage.setItem("products", JSON.stringify(products));
+        localStorage.setItem("cart", JSON.stringify(cart));
+
+        alert("Added to cart");
+        location.reload(); // stock refresh
+      }
+
+      /* ===== BUY NOW ===== */
+      function buyNow() {
+        addToCart();
+        location.href = "cart.html";
+      }
+
+      /* ===== WISHLIST ===== */
+      function addToWishlist() {
+        let user = JSON.parse(localStorage.getItem("currentUser"));
+        if (!user) {
+          localStorage.setItem(
+            "redirectAfterLogin",
+            "product-details.html?id=" + id
+          );
+          location.href = "login.html";
+          return;
+        }
+
+        let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+
+        if (wishlist.find((w) => w.userId === user.id && w.id === id)) {
+          alert("Already in wishlist");
+          return;
+        }
+
+        wishlist.push({
+          userId: user.id,
+          id: p.id,
+          name: p.name,
+          price: p.price,
+          img: p.img,
+        });
+
+        localStorage.setItem("wishlist", JSON.stringify(wishlist));
+        alert("Added to wishlist ❤️");
+      }
+    </script>
+  </body>
+</html>

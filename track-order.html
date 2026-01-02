@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Track Order</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <h1>Track Order</h1>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="login.html">Login</a>
+      </nav>
+    </div>
+
+    <section class="products" style="max-width: 480px; margin: auto">
+      <div class="product-box">
+        <input
+          id="phone"
+          type="tel"
+          placeholder="Enter registered phone number"
+        />
+        <button onclick="trackOrder()">Track Order</button>
+      </div>
+
+      <div id="result"></div>
+    </section>
+
+    <script>
+      function trackOrder() {
+        let phone = document.getElementById("phone").value.trim();
+        let result = document.getElementById("result");
+
+        if (!phone) {
+          alert("Enter phone number");
+          return;
+        }
+
+        let orders = JSON.parse(localStorage.getItem("orders")) || [];
+        result.innerHTML = "";
+
+        let found = orders.filter((o) => o.user && o.user.phone === phone);
+
+        if (found.length === 0) {
+          result.innerHTML = `
+      <div class="product-box">
+        <p>No orders found for this number.</p>
+      </div>
+    `;
+          return;
+        }
+
+        found.forEach((o) => {
+          let itemsHTML = "";
+          let total = 0;
+
+          o.items.forEach((it) => {
+            total += it.price * it.qty;
+            itemsHTML += `<li>${it.name} × ${it.qty}</li>`;
+          });
+
+          result.innerHTML += `
+      <div class="product-box">
+        <h3>Order #${o.id}</h3>
+
+        <p><b>Date:</b> ${o.date}</p>
+
+        <p>Status:
+          <b class="status-${o.status.toLowerCase()}">
+            ${o.status}
+          </b>
+        </p>
+
+        <ul>${itemsHTML}</ul>
+
+        <p><b>Total:</b> ₹${total}</p>
+
+        ${
+          o.courier && o.trackingId
+            ? `<a target="_blank"
+               href="${getTrack(o.courier, o.trackingId)}">
+               Track via ${o.courier}
+             </a>`
+            : ""
+        }
+      </div>
+    `;
+        });
+      }
+
+      function getTrack(c, id) {
+        c = c.toLowerCase();
+        if (c.includes("delhivery"))
+          return `https://www.delhivery.com/track/package/${id}`;
+        if (c.includes("dtdc"))
+          return `https://www.dtdc.in/tracking/tracking_results.asp?Ttype=awb_no&strCnno=${id}`;
+        if (c.includes("blue"))
+          return `https://www.bluedart.com/tracking?awb=${id}`;
+        if (c.includes("india"))
+          return `https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx?trackid=${id}`;
+        return `https://www.google.com/search?q=${c}+${id}`;
+      }
+    </script>
+  </body>
+</html>

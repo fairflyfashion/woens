@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Orders</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <script>
+      let user = JSON.parse(localStorage.getItem("currentUser"));
+      if (!user) {
+        location.href = "login.html";
+      }
+    </script>
+
+    <div class="topbar">
+      <h1>My Orders</h1>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="my-account.html">My Account</a>
+      </nav>
+    </div>
+
+    <div class="products" id="myOrders"></div>
+
+    <script>
+      let orders = JSON.parse(localStorage.getItem("orders")) || [];
+      let box = document.getElementById("myOrders");
+
+      /* ✅ CORRECT FILTER */
+      let myOrders = orders.filter((o) => o.user && o.user.id === user.id);
+
+      if (myOrders.length === 0) {
+        box.innerHTML = `
+    <div class="product-box">
+      <p>You have not placed any orders yet.</p>
+      <a href="index.html"><button class="small">Start Shopping</button></a>
+    </div>
+  `;
+      } else {
+        myOrders.forEach((o) => {
+          box.innerHTML += `
+    <div class="product-box">
+
+      <h3>Order #${o.id}</h3>
+
+      <p>
+        Status:
+        <span class="status ${o.status.toLowerCase()}">${o.status}</span>
+      </p>
+
+      <p><b>Order Date:</b> ${o.date || "-"}</p>
+      <p><b>Total:</b> ₹${o.total || 0}</p>
+
+      <p><b>Courier:</b> ${o.courier || "Not assigned"}</p>
+      <p><b>Tracking:</b> ${o.trackingId || "Not available"}</p>
+
+      ${
+        o.courier && o.trackingId
+          ? `<a target="_blank" href="${getTrack(o.courier, o.trackingId)}">
+            Track on ${o.courier}
+           </a>`
+          : ``
+      }
+
+      <!-- ORDER TIMELINE -->
+      <div class="timeline">
+        <div class="step ${
+          ["Pending", "Packing", "Dispatched", "Delivered"].includes(o.status)
+            ? "active"
+            : ""
+        }">
+          Confirmed
+        </div>
+        <div class="step ${
+          ["Packing", "Dispatched", "Delivered"].includes(o.status)
+            ? "active"
+            : ""
+        }">
+          Packing
+        </div>
+        <div class="step ${
+          ["Dispatched", "Delivered"].includes(o.status) ? "active" : ""
+        }">
+          Dispatched
+        </div>
+        <div class="step ${o.status === "Delivered" ? "active" : ""}">
+          Delivered
+        </div>
+      </div>
+
+      <button class="small" onclick="openInvoice(${o.id})">🧾 Invoice</button>
+
+    </div>
+    `;
+        });
+      }
+
+      function getTrack(c, id) {
+        c = c.toLowerCase();
+        if (c.includes("delhivery"))
+          return `https://www.delhivery.com/track/package/${id}`;
+        if (c.includes("dtdc"))
+          return `https://www.dtdc.in/tracking/tracking_results.asp?Ttype=awb_no&strCnno=${id}`;
+        if (c.includes("blue"))
+          return `https://www.bluedart.com/tracking?awb=${id}`;
+        if (c.includes("india"))
+          return `https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx?trackid=${id}`;
+        return `https://www.google.com/search?q=${c}+${id}`;
+      }
+
+      function openInvoice(id) {
+        localStorage.setItem("printOrderId", id);
+        window.open("invoice.html");
+      }
+    </script>
+  </body>
+</html>

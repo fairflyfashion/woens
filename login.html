@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <script>
+      /* ===== ALREADY LOGGED IN GUARD ===== */
+      let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      if (currentUser) {
+        if (currentUser.role === "admin") {
+          location.href = "admin.html";
+        } else {
+          location.href = "index.html";
+        }
+      }
+    </script>
+
+    <header class="topbar">
+      <h1>Login</h1>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="signup.html">Sign Up</a>
+      </nav>
+    </header>
+
+    <section class="products" style="max-width: 420px; margin: auto">
+      <div class="product-box">
+        <h2 style="text-align: center">Admin / Customer Login</h2>
+
+        <label>Email</label>
+        <input id="email" type="email" placeholder="Email" />
+
+        <label>Password</label>
+        <input id="password" type="password" placeholder="Password" />
+
+        <button onclick="login()">Login</button>
+      </div>
+    </section>
+
+    <script>
+      function login() {
+        let email = email.value.trim();
+        let password = password.value;
+
+        if (!email || !password) {
+          alert("Fill all fields");
+          return;
+        }
+
+        let users = JSON.parse(localStorage.getItem("users")) || [];
+        let user = users.find(
+          (u) => u.email === email && u.password === password
+        );
+
+        if (!user) {
+          alert("Invalid email or password");
+          return;
+        }
+
+        /* ===== LOGIN SUCCESS ===== */
+        localStorage.setItem("currentUser", JSON.stringify(user));
+
+        /* ===== ADMIN FLAG ===== */
+        if (user.role === "admin") {
+          localStorage.setItem("adminLogin", "yes");
+        } else {
+          localStorage.removeItem("adminLogin");
+        }
+
+        /* ===== REDIRECT ===== */
+        let redirect = localStorage.getItem("redirectAfterLogin");
+        if (redirect) {
+          localStorage.removeItem("redirectAfterLogin");
+          location.href = redirect;
+          return;
+        }
+
+        if (user.role === "admin") {
+          location.href = "admin.html";
+        } else {
+          location.href = "index.html";
+        }
+      }
+    </script>
+  </body>
+</html>

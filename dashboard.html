@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <script>
+      if (localStorage.getItem("adminLogin") !== "yes") {
+        location.href = "admin-login.html";
+      }
+    </script>
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <h1>Dashboard</h1>
+    </div>
+
+    <!-- NAV -->
+    <div class="admin-nav">
+      <button onclick="go('admin.html')">Home</button>
+      <button onclick="go('orders.html')">Orders</button>
+      <button class="danger" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="dash-grid">
+      <div class="dash-card">
+        <h2 id="totalProducts">0</h2>
+        <p>Total Products</p>
+      </div>
+
+      <div class="dash-card">
+        <h2 id="totalOrders">0</h2>
+        <p>Total Orders</p>
+      </div>
+
+      <div class="dash-card">
+        <h2 id="deliveredOrders">0</h2>
+        <p>Delivered Orders</p>
+      </div>
+
+      <div class="dash-card">
+        <h2>₹<span id="totalSales">0</span></h2>
+        <p>Total Sales</p>
+      </div>
+
+      <div class="dash-card">
+        <h2>₹<span id="totalExpense">0</span></h2>
+        <p>Total Expense</p>
+      </div>
+
+      <div class="dash-card">
+        <h2>₹<span id="netProfit">0</span></h2>
+        <p>Net Profit</p>
+      </div>
+    </div>
+
+    <script>
+      let products = JSON.parse(localStorage.getItem("products")) || [];
+      let orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+      /* COUNTS */
+      document.getElementById("totalProducts").innerText = products.length;
+      document.getElementById("totalOrders").innerText = orders.length;
+
+      let deliveredOrders = orders.filter((o) => o.status === "Delivered");
+      document.getElementById("deliveredOrders").innerText =
+        deliveredOrders.length;
+
+      /* SUMS */
+      let totalSales = 0;
+      let totalExpense = 0;
+      let netProfit = 0;
+
+      deliveredOrders.forEach((o) => {
+        totalSales += o.total || 0;
+        netProfit += o.profit || 0;
+
+        if (o.expense) {
+          totalExpense +=
+            (o.expense.delivery || 0) +
+            (o.expense.packing || 0) +
+            (o.expense.other || 0);
+        }
+      });
+
+      document.getElementById("totalSales").innerText = totalSales;
+      document.getElementById("totalExpense").innerText = totalExpense;
+      document.getElementById("netProfit").innerText = netProfit;
+
+      function go(p) {
+        location.href = p;
+      }
+      function logout() {
+        localStorage.removeItem("adminLogin");
+        location.href = "admin-login.html";
+      }
+    </script>
+  </body>
+</html>

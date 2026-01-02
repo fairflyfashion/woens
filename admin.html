@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Admin Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <script>
+      if (localStorage.getItem("adminLogin") !== "yes") {
+        location.href = "admin-login.html";
+      }
+    </script>
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <h1>Admin Panel</h1>
+    </div>
+
+    <!-- NAV -->
+    <div class="admin-nav">
+      <button onclick="go('admin.html')">Home</button>
+      <button onclick="go('dashboard.html')">Dashboard</button>
+      <button onclick="go('orders.html')">Orders</button>
+      <button onclick="go('add-product.html')">Add Product</button>
+      <button onclick="go('manage-products.html')">Manage Products</button>
+      <button class="danger" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- DASHBOARD SUMMARY -->
+    <div class="dash-grid">
+      <div class="dash-card highlight">
+        <h2 id="totalOrders">0</h2>
+        <p>Total Orders</p>
+      </div>
+
+      <div class="dash-card">
+        <h2 id="pendingOrders">0</h2>
+        <p>Pending Orders</p>
+      </div>
+
+      <div class="dash-card highlight">
+        <h2>₹<span id="todayProfit">0</span></h2>
+        <p>Today Profit</p>
+      </div>
+
+      <div class="dash-card">
+        <h2 id="totalProducts">0</h2>
+        <p>Total Products</p>
+      </div>
+    </div>
+
+    <!-- QUICK ACTION -->
+    <div class="products">
+      <div class="product-box">
+        <h3>Quick Actions</h3>
+        <button onclick="go('add-product.html')">➕ Add Product</button>
+        <button onclick="go('orders.html')">📦 View Orders</button>
+        <button onclick="go('manage-products.html')">🛠 Manage Products</button>
+      </div>
+    </div>
+
+    <script>
+      function go(p) {
+        location.href = p;
+      }
+      function logout() {
+        localStorage.removeItem("adminLogin");
+        location.href = "admin-login.html";
+      }
+
+      /* ===== DATA ===== */
+      let orders = JSON.parse(localStorage.getItem("orders")) || [];
+      let products = JSON.parse(localStorage.getItem("products")) || [];
+
+      document.getElementById("totalOrders").innerText = orders.length;
+      document.getElementById("pendingOrders").innerText = orders.filter(
+        (o) => o.status === "Pending"
+      ).length;
+
+      let today = new Date().toISOString().slice(0, 10);
+      let todayProfit = orders
+        .filter((o) => o.status === "Delivered" && o.date === today)
+        .reduce((t, o) => t + (o.profit || 0), 0);
+
+      document.getElementById("todayProfit").innerText = todayProfit;
+      document.getElementById("totalProducts").innerText = products.length;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Payment</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <script>
+      let user = JSON.parse(localStorage.getItem("currentUser"));
+      if (!user) {
+        alert("Please login first");
+        location.href = "login.html";
+      }
+    </script>
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <h1>Step 3: Payment</h1>
+      <nav>
+        <a href="checkout.html">Back</a>
+        <a href="index.html">Home</a>
+      </nav>
+    </div>
+
+    <section class="products" style="max-width: 520px; margin: auto">
+      <!-- CUSTOMER SUMMARY -->
+      <div class="product-box">
+        <h3>Customer Details</h3>
+        <p><b>Name:</b> <span id="cName"></span></p>
+        <p><b>Phone:</b> <span id="cPhone"></span></p>
+        <p><b>Address:</b> <span id="cAddress"></span></p>
+      </div>
+
+      <!-- ORDER SUMMARY -->
+      <div class="product-box">
+        <h3>Order Summary</h3>
+        <div id="items"></div>
+        <hr />
+        <p><b>Total Amount:</b> ₹<span id="amount"></span></p>
+      </div>
+
+      <!-- PAYMENT -->
+      <div class="product-box" style="text-align: center">
+        <h3>Pay via UPI</h3>
+
+        <img id="qr" style="width: 220px; margin: 15px auto; display: block" />
+
+        <a id="upiLink">
+          <button>Pay Now (UPI)</button>
+        </a>
+
+        <p style="font-size: 12px; color: #9aa0b4">After payment click below</p>
+
+        <button class="secondary" onclick="placeOrder()">
+          Payment Done → Place Order
+        </button>
+      </div>
+    </section>
+
+    <script>
+      /* ===== LOAD DATA ===== */
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+      let customer = JSON.parse(localStorage.getItem("checkoutCustomer"));
+
+      if (!customer || cart.length === 0) {
+        alert("Invalid checkout flow");
+        location.href = "cart.html";
+      }
+
+      /* CUSTOMER */
+      cName.innerText = customer.name;
+      cPhone.innerText = customer.phone;
+      cAddress.innerText = customer.address;
+
+      /* ITEMS */
+      let total = 0;
+      items.innerHTML = "";
+      cart.forEach((i) => {
+        total += i.price * i.qty;
+        items.innerHTML += `
+    <p>${i.name} × ${i.qty} — ₹${i.price * i.qty}</p>
+  `;
+      });
+      amount.innerText = total;
+
+      /* ===== UPI CONFIG ===== */
+      let upiId = "7550871372@okbizaxis"; // 🔴 change if needed
+      let shopName = "My Shop";
+      let upiURL = `upi://pay?pa=${upiId}&pn=${shopName}&am=${total}&cu=INR`;
+
+      upiLink.href = upiURL;
+      qr.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
+        upiURL
+      )}`;
+
+      /* ===== PLACE ORDER ===== */
+      function placeOrder() {
+        let order = {
+          id: Date.now(),
+          userId: user.id,
+          user: {
+            name: user.name,
+            phone: user.phone,
+          },
+          address: customer.address,
+          items: cart,
+          amount: total,
+          payment: "UPI",
+          status: "Pending",
+          date: new Date().toLocaleDateString(),
+        };
+
+        let orders = JSON.parse(localStorage.getItem("orders")) || [];
+        orders.push(order);
+        localStorage.setItem("orders", JSON.stringify(orders));
+
+        localStorage.removeItem("cart");
+        localStorage.removeItem("checkoutCustomer");
+
+        alert("Order placed successfully ✅");
+        location.href = "my-orders.html";
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cart</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="topbar">
+      <h1>My Cart</h1>
+    </div>
+
+    <section class="products" id="cartBox"></section>
+
+    <div class="products">
+      <div class="product-box">
+        <h3>Total Amount</h3>
+        <h2 id="cartTotal">₹0</h2>
+        <button onclick="goCheckout()">Proceed to Checkout</button>
+      </div>
+    </div>
+
+    <script>
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+      let box = document.getElementById("cartBox");
+      let totalBox = document.getElementById("cartTotal");
+
+      function renderCart() {
+        box.innerHTML = "";
+        let total = 0;
+
+        if (cart.length === 0) {
+          box.innerHTML = "<p>Your cart is empty</p>";
+          totalBox.innerText = "₹0";
+          return;
+        }
+
+        cart.forEach((i, idx) => {
+          let itemTotal = i.price * i.qty;
+          total += itemTotal;
+
+          box.innerHTML += `
+    <div class="product-box">
+      <h3>${i.name}</h3>
+      <p>Category: ${i.category}</p>
+      <p>Price: ₹${i.price}</p>
+
+      <div class="qty">
+        <button class="small" onclick="dec(${idx})">−</button>
+        <b>${i.qty}</b>
+        <button class="small" onclick="inc(${idx})">+</button>
+      </div>
+
+      <p><b>Item Total:</b> ₹${itemTotal}</p>
+
+      <button class="outline small" onclick="removeItem(${idx})">Remove</button>
+    </div>
+    `;
+        });
+
+        totalBox.innerText = "₹" + total;
+
+        // ✅ SAVE SNAPSHOT FOR CHECKOUT
+        localStorage.setItem("cart", JSON.stringify(cart));
+        localStorage.setItem("cartTotal", total);
+      }
+
+      function inc(i) {
+        cart[i].qty++;
+        renderCart();
+      }
+
+      function dec(i) {
+        if (cart[i].qty > 1) {
+          cart[i].qty--;
+        } else {
+          cart.splice(i, 1);
+        }
+        renderCart();
+      }
+
+      function removeItem(i) {
+        if (confirm("Remove this item?")) {
+          cart.splice(i, 1);
+          renderCart();
+        }
+      }
+
+      function goCheckout() {
+        if (cart.length === 0) {
+          alert("Cart is empty");
+          return;
+        }
+        // snapshot
+        localStorage.setItem("checkoutCart", JSON.stringify(cart));
+        location.href = "checkout.html";
+      }
+
+      renderCart();
+    </script>
+  </body>
+</html>

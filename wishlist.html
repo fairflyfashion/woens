@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Wishlist</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<script>
+/* ===== LOGIN GUARD ===== */
+let user = JSON.parse(localStorage.getItem("currentUser"));
+if(!user){
+  localStorage.setItem("redirectAfterLogin","wishlist.html");
+  location.href="login.html";
+}
+</script>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <h1>My Wishlist</h1>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="my-account.html">My Account</a>
+  </nav>
+</div>
+
+<section class="products" id="wishBox"></section>
+
+<script>
+let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+let products = JSON.parse(localStorage.getItem("products")) || [];
+let box = document.getElementById("wishBox");
+
+/* ===== USER WISHLIST ===== */
+let myWish = wishlist.filter(w => w.userId === user.id);
+
+if(myWish.length === 0){
+  box.innerHTML = `
+    <div class="product-box">
+      <p>Your wishlist is empty.</p>
+    </div>
+  `;
+}else{
+  myWish.forEach(w=>{
+    let p = products.find(x => x.id === w.id);
+
+    box.innerHTML += `
+      <div class="product-box">
+        ${p ? `<img src="${p.img}" style="height:180px;object-fit:cover">` : ""}
+        <h3>${w.name}</h3>
+        <p>₹${w.price}</p>
+
+        <button onclick="openDetails(${w.id})">View Product</button>
+        <button class="danger" onclick="removeWish(${w.id})">Remove</button>
+      </div>
+    `;
+  });
+}
+
+/* ===== REMOVE ===== */
+function removeWish(id){
+  wishlist = wishlist.filter(
+    w => !(w.userId === user.id && w.id === id)
+  );
+  localStorage.setItem("wishlist", JSON.stringify(wishlist));
+  location.reload();
+}
+
+/* ===== OPEN PRODUCT ===== */
+function openDetails(id){
+  location.href = "product-details.html?id=" + id;
+}
+</script>
+
+</body>
+</html>

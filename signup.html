@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sign Up</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <script>
+      /* ===== ALREADY LOGGED IN GUARD ===== */
+      let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      if (currentUser) {
+        if (currentUser.role === "admin") {
+          location.href = "admin.html";
+        } else {
+          location.href = "index.html";
+        }
+      }
+    </script>
+
+    <header class="topbar">
+      <h1>Sign Up</h1>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="login.html">Login</a>
+      </nav>
+    </header>
+
+    <section class="products" style="max-width: 420px; margin: auto">
+      <div class="product-box">
+        <h2 style="text-align: center">Create Account</h2>
+
+        <label>Full Name</label>
+        <input id="name" placeholder="Full Name" />
+
+        <label>Email</label>
+        <input id="email" type="email" placeholder="Email" />
+
+        <label>Phone</label>
+        <input id="phone" type="tel" placeholder="10 digit phone" />
+
+        <label>Password</label>
+        <input
+          id="password"
+          type="password"
+          placeholder="Minimum 6 characters"
+        />
+
+        <label>Confirm Password</label>
+        <input id="cpassword" type="password" placeholder="Confirm password" />
+
+        <button onclick="signup()">Create Account</button>
+
+        <p style="text-align: center; margin-top: 10px">
+          Already have an account?
+          <a href="login.html">Login</a>
+        </p>
+      </div>
+    </section>
+
+    <script>
+      function signup() {
+        let name = document.getElementById("name").value.trim();
+        let email = document.getElementById("email").value.trim().toLowerCase();
+        let phone = document.getElementById("phone").value.trim();
+        let password = document.getElementById("password").value;
+        let cpassword = document.getElementById("cpassword").value;
+
+        /* ===== VALIDATION ===== */
+        if (!name || !email || !phone || !password || !cpassword) {
+          alert("Please fill all fields");
+          return;
+        }
+
+        if (!/^\S+@\S+\.\S+$/.test(email)) {
+          alert("Invalid email format");
+          return;
+        }
+
+        if (!/^[0-9]{10}$/.test(phone)) {
+          alert("Enter valid 10 digit phone number");
+          return;
+        }
+
+        if (password.length < 6) {
+          alert("Password must be at least 6 characters");
+          return;
+        }
+
+        if (password !== cpassword) {
+          alert("Passwords do not match");
+          return;
+        }
+
+        let users = JSON.parse(localStorage.getItem("users")) || [];
+
+        /* ===== DUPLICATE EMAIL CHECK ===== */
+        if (users.find((u) => u.email === email)) {
+          alert("Email already registered");
+          return;
+        }
+
+        /* ===== CREATE USER ===== */
+        let newUser = {
+          id: Date.now(),
+          name,
+          email,
+          phone,
+          password,
+          role: "customer",
+          createdAt: new Date().toISOString(),
+        };
+
+        users.push(newUser);
+        localStorage.setItem("users", JSON.stringify(users));
+
+        /* ===== AUTO LOGIN ===== */
+        localStorage.setItem("currentUser", JSON.stringify(newUser));
+        localStorage.removeItem("adminLogin");
+
+        alert("Account created successfully 🎉");
+        location.href = "index.html";
+      }
+    </script>
+  </body>
+</html>
